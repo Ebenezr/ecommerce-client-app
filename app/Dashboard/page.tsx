@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [OpenModal] = useStore((state) => [state.OpenModal]);
 
   const {
-    isLoading: catLoading,
+    isLoading,
     data: products,
     error,
     fetchResults,
@@ -162,107 +162,114 @@ const Dashboard = () => {
             <div className="overflow-x-scroll h-full w-full  grid grid-cols-2 lg:grid-cols-6 md:grid-cols-4 p-4 gap-4">
               {/* card */}
 
-              {products?.map((item: Product) => (
-                <div
-                  key={item.id}
-                  className="inline-block flex-shrink-0 w-full"
-                >
-                  <div className="grid inline-block w-full grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
-                    {/* image */}
-                    <div className=" relative bg-white w-full row-end-3 row-start-1 ">
-                      {item?.image_url && (
-                        <Image
-                          unoptimized
-                          className="w-full h-full object-cover"
-                          src={item?.image_url}
-                          alt={item?.name}
-                          width={40}
-                          height={40}
-                          // placeholder="blur"
-                        />
-                      )}
-                      {/* favorite */}
-                      <button className="p-2 absolute right-0 top-0">
-                        {!true ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            className="w-6 h-6 text-gray-400"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="w-6 h-6 text-gray-400"
-                          >
-                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                          </svg>
+              {isLoading === true || error === true ? (
+                <SkeletonLoader />
+              ) : (
+                products?.map((item: Product) => (
+                  <div
+                    key={item.id}
+                    className="inline-block flex-shrink-0 w-full"
+                  >
+                    <div className="grid inline-block w-full grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
+                      {/* image */}
+                      <div className=" relative bg-white w-full row-end-3 row-start-1 ">
+                        {item?.image_url && (
+                          <Image
+                            unoptimized
+                            className="w-full h-full object-cover"
+                            src={item?.image_url}
+                            alt={item?.name}
+                            width={40}
+                            height={40}
+                            // placeholder="blur"
+                          />
                         )}
-                      </button>
-                      {/* discount */}
-                      {item.discount && (
-                        <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
-                          <p className="text-white font-semibold text-xs">
-                            {item.discount}% OFF
-                          </p>
-                        </span>
-                      )}
-                      {item.sponsored && (
-                        <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
-                          <p className="text-gray-400 text-xs">Sponsored</p>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="w-5 h-5 text-gray-400"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                      )}
-                    </div>
-                    {/* content */}
-                    <div className="px-4 flex flex-col">
-                      <p className="text-sm font-semibold text-gary-600 mt-2">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-blue-500"> {item.supplier}</p>
-                      <p className="text-sm font-semibold mt-2 text-gary-600">
-                        {KES.format(item.price)}
-                      </p>
-                      <p className="text-xs text-yellow-400 mt-[2px]">
-                        &#9733; {item.rating}
-                      </p>
-                    </div>
-                    {/* buttons */}
-                    <div className="flex justify-between items-center gap-3 px-4 py-2">
-                      <button className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold">
-                        Edit
-                      </button>
-                      <button
-                        className="bg-red-200 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold"
-                        onClick={() => handleDelete(item?.id)}
-                      >
-                        Delete
-                      </button>
+                        {/* favorite */}
+                        <button className="p-2 absolute right-0 top-0">
+                          {!true ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              className="w-6 h-6 text-gray-400"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-6 h-6 text-gray-400"
+                            >
+                              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                            </svg>
+                          )}
+                        </button>
+                        {/* discount */}
+                        {item.discount && (
+                          <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
+                            <p className="text-white font-semibold text-xs">
+                              {item.discount}% OFF
+                            </p>
+                          </span>
+                        )}
+                        {item.sponsored && (
+                          <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
+                            <p className="text-gray-400 text-xs">Sponsored</p>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-5 h-5 text-gray-400"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
+                      {/* content */}
+                      <div className="px-4 flex flex-col">
+                        <p className="text-sm font-semibold text-gary-600 mt-2">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-blue-500">
+                          {" "}
+                          {item.supplier}
+                        </p>
+                        <p className="text-sm font-semibold mt-2 text-gary-600">
+                          {KES.format(item.price)}
+                        </p>
+                        <p className="text-xs text-yellow-400 mt-[2px]">
+                          &#9733; {item.rating}
+                        </p>
+                      </div>
+                      {/* buttons */}
+                      <div className="flex justify-between items-center gap-3 px-4 py-2">
+                        <button className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold">
+                          Edit
+                        </button>
+                        <button
+                          className="bg-red-200 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold"
+                          onClick={() => handleDelete(item?.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </Suspense>
@@ -272,3 +279,29 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+function SkeletonLoader() {
+  return (
+    <>
+      {[...Array(20)].map((_, i) => (
+        <div key={i} className="inline-block flex-shrink-0 w-full">
+          <div className="grid inline-block w-full grid-rows-3 h-80 bg-slate-50 rounded-lg animate-pulse overflow-hidden">
+            {/* image */}
+            <div className="animate-pulse relative bg-slate-200 w-full row-end-3 row-start-1 "></div>
+            {/* content */}
+            <div className="px-4 flex flex-col">
+              <div className="bg-slate-200 h-10 w-1/2  mt-2 rounded-md animate-pulse"></div>
+              <div className="bg-slate-200 h-8 w-1/2 mt-2 rounded-md animate-pulse"></div>
+              <div className="bg-slate-200 h-8 w-1/2 mt-2 rounded-md animate-pulse"></div>
+            </div>
+            {/* buttons */}
+            <div className="flex justify-between items-center gap-3 px-4 py-2">
+              <div className="animate-pulse bg-slate-200 h-8 w-16 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold"></div>
+              <div className="animate-pulse bg-slate-200 h-8 w-16 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
