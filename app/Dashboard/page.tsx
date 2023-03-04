@@ -1,10 +1,10 @@
 "use client";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import useStore from "@/store/useStore";
-import { Product } from "@/type";
+import { Product, productCategory } from "@/type";
 import useCustomQuery from "@/utils/hooks/getQuery";
 import { Suspense, useState } from "react";
-import { isTemplateHead } from "typescript";
 import Loading from "../loading";
 import useCustomDestroyMutation from "@/utils/hooks/deleteQuery";
 
@@ -14,6 +14,7 @@ const KES = new Intl.NumberFormat("en-US", {
 });
 
 const Dashboard = () => {
+  const [StockPrice, setStock] = useState();
   const [OpenModal] = useStore((state) => [state.OpenModal]);
 
   const {
@@ -23,11 +24,26 @@ const Dashboard = () => {
     fetchResults,
   } = useCustomQuery<Product[]>("http://localhost:5000/api/products");
 
+  const { data: categories } = useCustomQuery<productCategory[]>(
+    "http://localhost:5000/api/categories"
+  );
+
   const {
     isLoading: destroyLoading,
     error: destroyError,
     mutate: destroy,
   } = useCustomDestroyMutation("http://localhost:5000/api/product");
+
+  // calculate stock
+  useEffect(() => {
+    if (products instanceof Array) {
+      const totalStock = products.reduce(
+        (acc, product) => acc + product.price,
+        0
+      );
+      setStock(totalStock);
+    }
+  }, [products]);
 
   const handleDelete = (id: number) => {
     destroy(id.toString());
@@ -48,12 +64,18 @@ const Dashboard = () => {
           {/* starts */}
           <div className="rounded-lg flex bg-white shadow-sm p-2 h-full col-start-2 col-end-5 row-end-3 row-start-1">
             <div className="flex flex-col w-1/2">
-              <p className="text-gray-500 font-semibold">Product Categories</p>
-              <p className="text-gray-500 font-semibold">Products</p>
+              <p className="text-gray-500 font-semibold">
+                Product Categories: {categories?.length}
+              </p>
+              <p className="text-gray-500 font-semibold">
+                Products: {products?.length}
+              </p>
             </div>
             <div className="flex flex-col w-1/2">
-              <p className="text-gray-500 font-semibold">Total Stock</p>
-              <p className="text-gray-500 font-semibold">Products</p>
+              <p className="text-gray-500 font-semibold">
+                Total Stock {KES.format(StockPrice)}
+              </p>
+              <p className="text-gray-500 font-semibold">Suppliers:</p>
             </div>
           </div>
           <div className="rounded-lg flex justify-around items-center gap-3 px-2 bg-white shadow-sm h-full col-end-6 col-start-2 row-start-3 row-end-4">
