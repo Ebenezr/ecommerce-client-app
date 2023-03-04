@@ -1,7 +1,7 @@
 export interface Product {
   id: number;
   name: string;
-  description?: string;
+  description: string;
   price: number;
   rating?: number;
   image_url?: string;
@@ -10,6 +10,7 @@ export interface Product {
   discount?: number;
   sponsored: boolean;
   color?: string;
+  supplier: string;
 }
 
 export interface productCategory {

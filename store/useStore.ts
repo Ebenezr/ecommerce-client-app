@@ -1,13 +1,16 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import useProdStore from "./slices/productSlice";
+import useModalStore from "./slices/modalSlice";
 
 import ProductState from "./types/iProductState";
+import ModalState from "./types/iModalState";
 
-export const useStore = create<ProductState>()(
+export const useStore = create<ProductState & ModalState>()(
   persist(
     (...a) => ({
       ...useProdStore(...a),
+      ...useModalStore(...a),
     }),
     {
       name: "next-zustand",

@@ -1,6 +1,38 @@
-import React from "react";
+"use client";
+import Image from "next/image";
+import useStore from "@/store/useStore";
+import { Product } from "@/type";
+import useCustomQuery from "@/utils/hooks/getQuery";
+import { Suspense, useState } from "react";
+import { isTemplateHead } from "typescript";
+import Loading from "../loading";
+import useCustomDestroyMutation from "@/utils/hooks/deleteQuery";
+
+const KES = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "KES",
+});
 
 const Dashboard = () => {
+  const [OpenModal] = useStore((state) => [state.OpenModal]);
+
+  const {
+    isLoading: catLoading,
+    data: products,
+    error,
+    fetchResults,
+  } = useCustomQuery<Product[]>("http://localhost:5000/api/products");
+
+  const {
+    isLoading: destroyLoading,
+    error: destroyError,
+    mutate: destroy,
+  } = useCustomDestroyMutation("http://localhost:5000/api/product");
+
+  const handleDelete = (id: number) => {
+    destroy(id.toString());
+  };
+
   return (
     <section className=" col-start-2 col-end-7 p-4">
       <div className="h-32 hidden lg:block md:block ">
@@ -9,7 +41,7 @@ const Dashboard = () => {
           <div className="rounded-lg p-2 flex flex-col bg-white shadow-sm h-full col-end-2 row-end-4 row-start-1">
             <div className="rounded-lg bg-blue-100 h-1/2 w-full"></div>
             <div className="p-2 flex items-center justify-between gap-2">
-              <p className="font-bold text-gray-500 md:text-sm">ESOKO INC</p>
+              <p className="font-bold text-gray-500 md:text-sm">E-SOKO INC</p>
               <p className="text-green-500 md:text-xs">Online</p>
             </div>
           </div>
@@ -33,9 +65,9 @@ const Dashboard = () => {
                 className="w-5 h-5 text-gray-500 md:w-4 md:h-4"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 />
               </svg>
               <p className="text-gray-500 md:text-xs"> +254 754 854585</p>
@@ -73,9 +105,9 @@ const Dashboard = () => {
                 className="w-5 h-5 text-gray-500 md:w-4 md:h-4"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97-1.94.284-3.916.455-5.922.505a.39.39 0 00-.266.112L8.78 21.53A.75.75 0 017.5 21v-3.955a48.842 48.842 0 01-2.652-.316c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 />
               </svg>
 
@@ -84,7 +116,10 @@ const Dashboard = () => {
           </div>
           {/* cta */}
           <div className="rounded-lg bg-white shadow-sm h-full col-end-6 col-start-5 overflow-hidden row-start-1 row-end-3">
-            <button className="bg-blue-100 text-blue-500 font-semibold md:text-sm w-full h-full flex items-center gap-3 md:gap-2 justify-center hover:bg-blue-500 hover:text-white group px-2">
+            <button
+              className="bg-blue-100 text-blue-500 font-semibold md:text-sm w-full h-full flex items-center gap-3 md:gap-2 justify-center hover:bg-blue-500 hover:text-white group px-2"
+              onClick={OpenModal}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -92,9 +127,9 @@ const Dashboard = () => {
                 className="text-blue-500 w-6 h-6 group-hover:text-white"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 />
               </svg>
               ADD NEW PRODUCT
@@ -122,307 +157,115 @@ const Dashboard = () => {
           </div>
         </div>
         {/* products */}
-        <div className=" h-[40rem] overflow-hidden  ">
-          <div className="overflow-x-scroll h-full w-full grid grid-cols-2 lg:grid-cols-6 md:grid-cols-4 p-4 gap-4">
-            {/* card */}
-            <div className="grid grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
-              {/* image */}
-              <div className=" relative bg-white w-full row-end-3 row-start-1 ">
-                {/* favorite */}
-                <button className="p-2 absolute right-0 top-0">
-                  {!true ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                    </svg>
-                  )}
-                </button>
-                {/* discount */}
-                <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
-                  <p className="text-white font-semibold text-xs">40% OFF</p>
-                </span>
-                {
-                  <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
-                    <p className="text-gray-400 text-xs">Sponsored</p>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 text-gray-400"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                }
-              </div>
-              {/* content */}
-              <div className="px-4 flex flex-col">
-                <p className="text-sm font-semibold text-gary-600 mt-2">
-                  Iphone 15x
-                </p>
-                <p className="text-xs text-blue-500">Iphone inc</p>
-                <p className="text-sm font-semibold mt-2 text-gary-600">
-                  Ksh. 123, 000
-                </p>
-                <p className="text-xs text-yellow-400 mt-[2px]">&#9733; 5</p>
-              </div>
-              {/* buttons */}
-              <div className="flex justify-between items-center gap-3 px-4 py-2">
-                <button className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold">
-                  Edit
-                </button>
-                <button className="bg-red-200 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold">
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
-              {/* image */}
-              <div className=" relative bg-white w-full row-end-3 row-start-1 ">
-                {/* favorite */}
-                <button className="p-2 absolute right-0 top-0">
-                  {!true ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                    </svg>
-                  )}
-                </button>
-                {/* discount */}
-                <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
-                  <p className="text-white font-semibold text-xs">40% OFF</p>
-                </span>
-                {
-                  <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
-                    <p className="text-gray-400 text-xs">Sponsored</p>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 text-gray-400"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                }
-              </div>
-              {/* content */}
-              <div className="px-4 flex flex-col">
-                <p className="text-sm font-semibold text-gary-600 mt-2">
-                  Iphone 15x
-                </p>
-                <p className="text-xs text-blue-500">Iphone inc</p>
-                <p className="text-sm font-semibold mt-2 text-gary-600">
-                  Ksh. 123, 000
-                </p>
-                <p className="text-xs text-yellow-400 mt-[2px]">&#9733; 5</p>
-              </div>
-              {/* buttons */}
-              <div className="flex justify-between items-center  gap-3  px-4 py-2">
-                <button className="bg-green-200 text-green-500 rounded-md px-4 py-[4px] font-semibold">
-                  Edit
-                </button>
-                <button className="bg-red-200 text-red-500 rounded-md px-4 py-[4px]  font-semibold">
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
-              {/* image */}
-              <div className=" relative bg-white w-full row-end-3 row-start-1 ">
-                {/* favorite */}
-                <button className="p-2 absolute right-0 top-0">
-                  {!true ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                    </svg>
-                  )}
-                </button>
-                {/* discount */}
-                <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
-                  <p className="text-white font-semibold text-xs">40% OFF</p>
-                </span>
-                {
-                  <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
-                    <p className="text-gray-400 text-xs">Sponsored</p>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 text-gray-400"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                }
-              </div>
-              {/* content */}
-              <div className="px-4 flex flex-col">
-                <p className="text-sm font-semibold text-gary-600 mt-2">
-                  Iphone 15x
-                </p>
-                <p className="text-xs text-blue-500">Iphone inc</p>
-                <p className="text-sm font-semibold mt-2 text-gary-600">
-                  Ksh. 123, 000
-                </p>
-                <p className="text-xs text-yellow-400 mt-[2px]">&#9733; 5</p>
-              </div>
-              {/* buttons */}
-              <div className="flex justify-between items-center  gap-3  px-4 py-2">
-                <button className="bg-green-200 text-green-500 rounded-md px-4 py-[4px] font-semibold">
-                  Edit
-                </button>
-                <button className="bg-red-200 text-red-500 rounded-md px-4 py-[4px]  font-semibold">
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
-              {/* image */}
-              <div className=" relative bg-white w-full row-end-3 row-start-1 ">
-                {/* favorite */}
-                <button className="p-2 absolute right-0 top-0">
-                  {!true ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-6 h-6 text-gray-400"
-                    >
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                    </svg>
-                  )}
-                </button>
-                {/* discount */}
-                <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
-                  <p className="text-white font-semibold text-xs">40% OFF</p>
-                </span>
-                {
-                  <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
-                    <p className="text-gray-400 text-xs">Sponsored</p>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 text-gray-400"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                }
-              </div>
-              {/* content */}
-              <div className="px-4 flex flex-col">
-                <p className="text-sm font-semibold text-gary-600 mt-2">
-                  Iphone 15x
-                </p>
-                <p className="text-xs text-blue-500">Iphone inc</p>
-                <p className="text-sm font-semibold mt-2 text-gary-600">
-                  Ksh. 123, 000
-                </p>
-                <p className="text-xs text-yellow-400 mt-[2px]">&#9733; 5</p>
-              </div>
-              {/* buttons */}
-              <div className="flex justify-between items-center  gap-3  px-4 py-2">
-                <button className="bg-green-200 text-green-500 rounded-md px-4 py-[4px] font-semibold">
-                  Edit
-                </button>
-                <button className="bg-red-200 text-red-500 rounded-md px-4 py-[4px]  font-semibold">
-                  Delete
-                </button>
-              </div>
+        <Suspense fallback={<Loading />}>
+          <div className=" h-[40rem] overflow-hidden w-full   ">
+            <div className="overflow-x-scroll h-full w-full  grid grid-cols-2 lg:grid-cols-6 md:grid-cols-4 p-4 gap-4">
+              {/* card */}
+
+              {products?.map((item: Product) => (
+                <div
+                  key={item.id}
+                  className="inline-block flex-shrink-0 w-full"
+                >
+                  <div className="grid inline-block w-full grid-rows-3 h-80 bg-slate-50 shadow-md rounded-lg overflow-hidden">
+                    {/* image */}
+                    <div className=" relative bg-white w-full row-end-3 row-start-1 ">
+                      {item?.image_url && (
+                        <Image
+                          unoptimized
+                          className="w-full h-full object-cover"
+                          src={item?.image_url}
+                          alt={item?.name}
+                          width={40}
+                          height={40}
+                          // placeholder="blur"
+                        />
+                      )}
+                      {/* favorite */}
+                      <button className="p-2 absolute right-0 top-0">
+                        {!true ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            className="w-6 h-6 text-gray-400"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-6 h-6 text-gray-400"
+                          >
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                          </svg>
+                        )}
+                      </button>
+                      {/* discount */}
+                      {item.discount && (
+                        <span className="h-12 w-10 rounded-lg bg-blue-500 p-2 absolute left-2 top-2">
+                          <p className="text-white font-semibold text-xs">
+                            {item.discount}% OFF
+                          </p>
+                        </span>
+                      )}
+                      {item.sponsored && (
+                        <span className="flex gap-2 items-center p-2 absolute left-0 bottom-0 ">
+                          <p className="text-gray-400 text-xs">Sponsored</p>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-5 h-5 text-gray-400"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      )}
+                    </div>
+                    {/* content */}
+                    <div className="px-4 flex flex-col">
+                      <p className="text-sm font-semibold text-gary-600 mt-2">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-blue-500"> {item.supplier}</p>
+                      <p className="text-sm font-semibold mt-2 text-gary-600">
+                        {KES.format(item.price)}
+                      </p>
+                      <p className="text-xs text-yellow-400 mt-[2px]">
+                        &#9733; {item.rating}
+                      </p>
+                    </div>
+                    {/* buttons */}
+                    <div className="flex justify-between items-center gap-3 px-4 py-2">
+                      <button className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold">
+                        Edit
+                      </button>
+                      <button
+                        className="bg-red-200 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold"
+                        onClick={() => handleDelete(item?.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </Suspense>
       </div>
     </section>
   );

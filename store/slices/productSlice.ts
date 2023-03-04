@@ -1,3 +1,4 @@
+import { Product } from "@/type";
 import { toast } from "react-toastify";
 import { StateCreator } from "zustand";
 import ProductState from "../types/iProductState";
@@ -15,6 +16,7 @@ const useProdStore: StateCreator<ProductState> = (set, get) => ({
     discount: 0,
     sponsored: true,
     color: "",
+    supplier: "",
   },
   setCurrentProduct: (params: any) => {
     set((state) => ({

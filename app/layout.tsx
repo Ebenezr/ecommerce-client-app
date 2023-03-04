@@ -30,7 +30,7 @@ export default function RootLayout({
         <meta property="og:title" content="estore.com" key="title" />
       </Head>
       <QueryClientProvider client={queryClient} contextSharing={true}>
-        <ToastContainer newestOnTop={true} autoClose={500} />
+        {/* <ToastContainer newestOnTop={true} autoClose={500} /> */}
         <body
           className="w-full font-montserrat bg-sky-50 mx-auto h-[100vh]"
           suppressHydrationWarning={true}
