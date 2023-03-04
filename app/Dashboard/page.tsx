@@ -47,6 +47,7 @@ const Dashboard = () => {
 
   const handleDelete = (id: number) => {
     destroy(id.toString());
+      fetchResults()
   };
 
   return (

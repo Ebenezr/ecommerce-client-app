@@ -8,7 +8,7 @@ this is a admin page for ecommerce site to enable user to view products , edit e
 
 ## SCREENSHOTS
 
-#### ![image](https://user-images.githubusercontent.com/37300065/222904353-78a88a46-1797-4234-bcc3-7b24a5733ff6.png)
+#### ![image](https://user-images.githubusercontent.com/37300065/222905573-ed5f94bd-0d1e-47a6-8afe-4a349de5db0a.png)
 
 
 ## Technologies
