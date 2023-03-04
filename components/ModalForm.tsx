@@ -59,12 +59,13 @@ const ModalForm = () => {
       .number()
       .min(1, { message: "Rating is required" })
       .max(5, { message: "Rating max(5) exceeded" }),
-    image: z.string(),
+    image: z.object({}),
     size: z.string(),
-    categoryId: z.number(),
+    productCategoryId: z.number(),
     discount: z.number(),
     sponsored: z.boolean(),
     color: z.string(),
+    supplier: z.string(),
   });
   // extracting the type
   type FormSchemaType = z.infer<typeof FormSchema>;
@@ -102,7 +103,7 @@ const ModalForm = () => {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="z-40 fixed bg-white h-[60vh] w-1/2  top-24 translate-y-1/2 rounded-lg overflow-hidden mx-auto flex flex-col shadow-lg"
+        className="z-40 fixed bg-white h-[65vh] w-1/2  top-24 translate-y-1/2 rounded-lg overflow-hidden mx-auto flex flex-col shadow-lg"
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -150,7 +151,7 @@ const ModalForm = () => {
                 <select
                   className=" border-0 py-3 bg-slate-50 px-2 text-gray-700 w-full rounded placeholder:text-gray-600"
                   id="categoryId"
-                  {...register("categoryId", { valueAsNumber: true })}
+                  {...register("productCategoryId", { valueAsNumber: true })}
                   onChange={handleCategoryChange}
                 >
                   <option value="">Select a Category</option>
@@ -162,9 +163,9 @@ const ModalForm = () => {
                       ))
                     : null}
                 </select>
-                {errors.categoryId && (
+                {errors.productCategoryId && (
                   <p className="text-sm text-red-600 mt-1">
-                    {errors.categoryId.message}
+                    {errors.productCategoryId.message}
                   </p>
                 )}
               </span>
@@ -257,7 +258,8 @@ const ModalForm = () => {
                 />
               </span>
             </div>
-            <span className="w-full">
+
+            <span className="w-full mt-3">
               <input
                 type="file"
                 id="image"
@@ -268,6 +270,20 @@ const ModalForm = () => {
               {errors.image && (
                 <p className="text-sm text-red-600 mt-1">
                   {errors.image.message}
+                </p>
+              )}
+            </span>
+            <span>
+              <input
+                type="text"
+                id="supplier"
+                placeholder="Product Supplier"
+                className="w-full border-0 py-3 mt-3 px-2 text-gray-700 rounded  bg-slate-50"
+                {...register("supplier")}
+              />
+              {errors.supplier && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.supplier.message}
                 </p>
               )}
             </span>

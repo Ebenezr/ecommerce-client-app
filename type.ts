@@ -6,7 +6,7 @@ export interface Product {
   rating?: number;
   image_url?: string;
   size: string;
-  categoryId: number;
+  productCategoryId: number;
   discount?: number;
   sponsored: boolean;
   color?: string;

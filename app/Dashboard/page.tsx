@@ -14,12 +14,14 @@ const KES = new Intl.NumberFormat("en-US", {
 });
 
 const Dashboard = () => {
-  const [StockPrice, setStock] = useState();
+  const [StockPrice, setStock] = useState(0);
+  const [Suppliers, setSuppliers] = useState(0);
+  const [products, setProducts] = useState<Product[]>();
   const [OpenModal] = useStore((state) => [state.OpenModal]);
 
   const {
     isLoading,
-    data: products,
+    data: productsList,
     error,
     fetchResults,
   } = useCustomQuery<Product[]>("http://localhost:5000/api/products");
@@ -34,20 +36,33 @@ const Dashboard = () => {
     mutate: destroy,
   } = useCustomDestroyMutation("http://localhost:5000/api/product");
 
+  useEffect(() => {
+    setProducts(productsList);
+  }, [productsList]);
   // calculate stock
   useEffect(() => {
+    const uniqueSuppliers = new Set();
+    let totalStock = 0;
     if (products instanceof Array) {
-      const totalStock = products.reduce(
-        (acc, product) => acc + product.price,
-        0
-      );
+      totalStock = products.reduce((acc, product) => acc + product.price, 0);
       setStock(totalStock);
+      // get number of suppliers
+      products.forEach((product) => {
+        uniqueSuppliers.add(product.supplier);
+      });
+      const numUniqueSuppliers = uniqueSuppliers.size;
+      setSuppliers(numUniqueSuppliers);
     }
   }, [products]);
 
   const handleDelete = (id: number) => {
     destroy(id.toString());
-      fetchResults()
+    if (productsList instanceof Array) {
+      const filteredProducts = productsList.filter(
+        (product) => product.id !== id
+      );
+      setProducts(filteredProducts);
+    }
   };
 
   return (
@@ -76,7 +91,9 @@ const Dashboard = () => {
               <p className="text-gray-500 font-semibold">
                 Total Stock {KES.format(StockPrice)}
               </p>
-              <p className="text-gray-500 font-semibold">Suppliers:</p>
+              <p className="text-gray-500 font-semibold">
+                Suppliers:{Suppliers}
+              </p>
             </div>
           </div>
           <div className="rounded-lg flex justify-around items-center gap-3 px-2 bg-white shadow-sm h-full col-end-6 col-start-2 row-start-3 row-end-4">
