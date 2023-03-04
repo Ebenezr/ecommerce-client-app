@@ -5,6 +5,12 @@
 
 this is a admin page for ecommerce site to enable user to view products , edit existing products, delete products and add new products.
 
+
+## SCREENSHOTS
+
+#### ![image](https://user-images.githubusercontent.com/37300065/222904353-78a88a46-1797-4234-bcc3-7b24a5733ff6.png)
+
+
 ## Technologies
 ### Front end
 * Nextjs(Typescript)
