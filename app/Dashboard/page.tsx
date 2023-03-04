@@ -162,7 +162,7 @@ const Dashboard = () => {
             <div className="overflow-x-scroll h-full w-full  grid grid-cols-2 lg:grid-cols-6 md:grid-cols-4 p-4 gap-4">
               {/* card */}
 
-              {isLoading === true || error === true ? (
+              {isLoading === true || error ? (
                 <SkeletonLoader />
               ) : (
                 products?.map((item: Product) => (
