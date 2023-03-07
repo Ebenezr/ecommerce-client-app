@@ -9,6 +9,7 @@ import Loading from "../loading";
 import useCustomDestroyMutation from "@/utils/hooks/deleteQuery";
 import { useGetFromStore } from "@/utils/hooks/zustandHook";
 import { toast } from "react-toastify";
+import { useQueryClient } from "react-query";
 
 const KES = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -16,10 +17,12 @@ const KES = new Intl.NumberFormat("en-US", {
 });
 
 const Dashboard = () => {
+  const queryClient = useQueryClient();
   const [StockPrice, setStock] = useState(0);
   const [Suppliers, setSuppliers] = useState(0);
   const [products, setProducts] = useState<Product[]>();
   const isEditable = useGetFromStore(useStore, (state) => state.isEditable);
+  const isModalOpen = useGetFromStore(useStore, (state) => state.isModalOpen);
   const [OpenModal] = useStore((state) => [state.OpenModal]);
   const [
     setIsEditable,
@@ -53,6 +56,11 @@ const Dashboard = () => {
   useEffect(() => {
     setProducts(productsList);
   }, [productsList]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries(["http://localhost:5000/api/products"]);
+  }, [isModalOpen]);
+
   // calculate stock
   useEffect(() => {
     const uniqueSuppliers = new Set();
