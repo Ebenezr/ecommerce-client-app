@@ -7,6 +7,8 @@ import useCustomQuery from "@/utils/hooks/getQuery";
 import { Suspense, useState } from "react";
 import Loading from "../loading";
 import useCustomDestroyMutation from "@/utils/hooks/deleteQuery";
+import { useGetFromStore } from "@/utils/hooks/zustandHook";
+import { toast } from "react-toastify";
 
 const KES = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -17,7 +19,19 @@ const Dashboard = () => {
   const [StockPrice, setStock] = useState(0);
   const [Suppliers, setSuppliers] = useState(0);
   const [products, setProducts] = useState<Product[]>();
+  const isEditable = useGetFromStore(useStore, (state) => state.isEditable);
   const [OpenModal] = useStore((state) => [state.OpenModal]);
+  const [
+    setIsEditable,
+    resetIsEditable,
+    setCurrentProduct,
+    resetCurrentProduct,
+  ] = useStore((state) => [
+    state.setIsEditable,
+    state.resetIsEditable,
+    state.setCurrentProduct,
+    state.resetCurrentProduct,
+  ]);
 
   const {
     isLoading,
@@ -158,7 +172,11 @@ const Dashboard = () => {
           <div className="rounded-lg bg-white shadow-sm h-full col-end-6 col-start-5 overflow-hidden row-start-1 row-end-3">
             <button
               className="bg-blue-100 text-blue-500 font-semibold md:text-sm w-full h-full flex items-center gap-3 md:gap-2 justify-center hover:bg-blue-500 hover:text-white group px-2"
-              onClick={OpenModal}
+              onClick={() => {
+                resetIsEditable();
+                resetCurrentProduct();
+                OpenModal();
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -180,7 +198,7 @@ const Dashboard = () => {
       {/*  */}
       <div>
         {/* header */}
-        <div className="w-full overflow-hidden">
+        <div className="w-screen overflow-hidden">
           <div className="flex gap-4 py-2 border-b-[1px] border-b-gray-200 mt-3 overflow-x-scroll">
             <button className="bg-blue-500 text-xs text-white font-semibold whitespace-nowrap rounded-full  px-4 py-2 hover:bg-blue-500 hover:text-white group">
               All Products
@@ -215,7 +233,6 @@ const Dashboard = () => {
                       <div className=" relative bg-white w-full row-end-3 row-start-1 ">
                         {item?.image_url && (
                           <Image
-                            unoptimized
                             className="w-full h-full object-cover"
                             src={item?.image_url}
                             alt={item?.name}
@@ -283,10 +300,7 @@ const Dashboard = () => {
                         <p className="text-sm font-semibold text-gary-600 mt-2">
                           {item.name}
                         </p>
-                        <p className="text-xs text-blue-500">
-                          {" "}
-                          {item.supplier}
-                        </p>
+                        <p className="text-xs text-blue-500">{item.supplier}</p>
                         <p className="text-sm font-semibold mt-2 text-gary-600">
                           {KES.format(item.price)}
                         </p>
@@ -296,12 +310,24 @@ const Dashboard = () => {
                       </div>
                       {/* buttons */}
                       <div className="flex justify-between items-center gap-3 px-4 py-2">
-                        <button className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold">
+                        <button
+                          className="bg-green-200 text-green-500 text-sm rounded-md px-4 py-[4px] font-semibold"
+                          onClick={() => {
+                            setIsEditable();
+                            setCurrentProduct(item);
+                            OpenModal();
+                          }}
+                        >
                           Edit
                         </button>
                         <button
                           className="bg-red-200 text-red-500 rounded-md  text-sm px-4 py-[4px]  font-semibold"
-                          onClick={() => handleDelete(item?.id)}
+                          onClick={() => {
+                            handleDelete(item?.id);
+                            toast.error(`${item.name} Deleted`, {
+                              position: "bottom-left",
+                            });
+                          }}
                         >
                           Delete
                         </button>

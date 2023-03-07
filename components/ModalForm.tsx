@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,9 @@ import useStore from "@/store/useStore";
 import { useGetFromStore } from "@/utils/hooks/zustandHook";
 import useCustomPatchMutation from "@/utils/hooks/patchRequest";
 import useCustomPostMutation from "@/utils/hooks/postRequest";
+import { Product } from "@/type";
+import Image from "next/image";
+import { toast } from "react-toastify";
 
 const dropIn = {
   hidden: {
@@ -32,13 +35,21 @@ const dropIn = {
 
 const ModalForm = () => {
   const [categoryId, setCategoryId] = useState<number>(1);
+  const [picture, setPicture] = useState<null | any>(null);
   const isModalOpen = useGetFromStore(useStore, (state) => state.isModalOpen);
+  const isEditable = useGetFromStore(useStore, (state) => state.isEditable);
+  const currentProduct = useGetFromStore(
+    useStore,
+    (state) => state.currentProduct
+  );
   const {
     data: patchData,
     isLoading: patchLoading,
     error: patchError,
     mutate: patch,
-  } = useCustomPatchMutation(`http://localhost:5000/api/products`);
+  } = useCustomPatchMutation<any>(
+    `http://localhost:5000/api/product/${currentProduct?.id}`
+  );
   const {
     data: postData,
     isLoading: postLoading,
@@ -53,13 +64,13 @@ const ModalForm = () => {
 
   const FormSchema = z.object({
     name: z.string().min(1, { message: "Name is required" }),
-    description: z.string().min(1, { message: "Description is required" }),
+    description: z.string().optional(),
     price: z.number().min(1, { message: "Price is required" }),
     rating: z
       .number()
       .min(1, { message: "Rating is required" })
       .max(5, { message: "Rating max(5) exceeded" }),
-    image: z.object({}),
+    image: z.unknown(),
     size: z.string(),
     productCategoryId: z.number(),
     discount: z.number(),
@@ -74,19 +85,78 @@ const ModalForm = () => {
     watch,
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
+    reValidateMode: "onChange",
+    defaultValues: {
+      name: currentProduct?.name ?? "",
+      price: currentProduct?.price ?? 0,
+      description: currentProduct?.description ?? "",
+      rating: currentProduct?.rating ?? 0,
+      supplier: currentProduct?.supplier ?? "",
+      color: currentProduct?.color ?? "",
+      productCategoryId: currentProduct?.productCategoryId ?? 0,
+    },
   });
 
   function handleCategoryChange(event: any) {
     setCategoryId(event.target.value);
   }
 
+  const onChangePicture = (e: any) => {
+    setPicture(URL.createObjectURL(e.target.files[0]));
+  };
+
+  useEffect(() => {
+    if (currentProduct) {
+      setValue("name", currentProduct?.name);
+      setValue("price", currentProduct?.price);
+      setValue("description", currentProduct?.description);
+      currentProduct?.rating && setValue("rating", currentProduct?.rating);
+      setValue("supplier", currentProduct?.supplier);
+      currentProduct?.color && setValue("color", currentProduct?.color);
+      setValue("productCategoryId", currentProduct?.productCategoryId);
+    }
+  }, [currentProduct, setValue]);
   // form submission
-  const onSubmit: SubmitHandler<FormSchemaType> = (data: any) => {
-    console.log(data);
-    post(data);
+  const onSubmit: SubmitHandler<FormSchemaType> = async (data: any) => {
+    // console.log(data);
+    try {
+      FormSchema.parse(data);
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price);
+      formData.append("rating", data.rating);
+      formData.append("size", data.size);
+      formData.append("productCategoryId", data.productCategoryId);
+      formData.append("discount", data.discount);
+      formData.append("sponsored", data.sponsored);
+      formData.append("color", data.color);
+      formData.append("supplier", data.supplier);
+      formData.append("image", data.image[0]);
+      console.log(formData);
+      if (isEditable === true) {
+        patch(formData);
+        if (patchData) {
+          toast.info(`Product Saved Successfully`, {
+            position: "bottom-left",
+          });
+        }
+      } else {
+        post(formData);
+        if (postData) {
+          toast.info(`Product Added Successfully`, {
+            position: "bottom-left",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!isModalOpen) return null;
@@ -103,13 +173,13 @@ const ModalForm = () => {
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="z-40 fixed bg-white h-[65vh] w-1/2  top-24 translate-y-1/2 rounded-lg overflow-hidden mx-auto flex flex-col shadow-lg"
+        className="z-40 fixed bg-white h-[70vh] w-1/2  top-24 translate-y-1/2 rounded-lg overflow-hidden mx-auto flex flex-col shadow-lg"
         onClick={(e) => {
           e.stopPropagation();
         }}
         style={{ width: "clamp(40%, 400px, 60%)" }}
       >
-        <header className="border-b-2 border-b-gray-300 h-12 flex items-center px-2 justify-between">
+        <header className="border-b-2 border-b-gray-300 h-12 flex items-center shrink-0 px-2 justify-between">
           <h2 className="font-bold text-gray-500">Product Info</h2>
           <button className="px-2" onClick={CloseModal}>
             <span>
@@ -130,8 +200,11 @@ const ModalForm = () => {
             </span>
           </button>
         </header>
-        <article className="flex-1 p-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <article className="flex-1 px-4 py-3">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col h-full"
+          >
             <div className="grid grid-cols-2 gap-3 mt-4 items-center ">
               <span className="w-full ">
                 <input
@@ -150,7 +223,7 @@ const ModalForm = () => {
               <span className="w-full">
                 <select
                   className=" border-0 py-3 bg-slate-50 px-2 text-gray-700 w-full rounded placeholder:text-gray-600"
-                  id="categoryId"
+                  id="productCategoryId"
                   {...register("productCategoryId", { valueAsNumber: true })}
                   onChange={handleCategoryChange}
                 >
@@ -258,21 +331,34 @@ const ModalForm = () => {
                 />
               </span>
             </div>
-
-            <span className="w-full mt-3">
-              <input
-                type="file"
-                id="image"
-                className="w-full border-0 py-3 px-2 text-gray-700 rounded bg-slate-50"
-                accept="image/*"
-                {...register("image")}
-              />
-              {errors.image && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.image.message}
-                </p>
-              )}
-            </span>
+            <div className="grid grid-cols-2 gap-3 mt-4 items-center ">
+              <span className="w-full ">
+                <input
+                  type="file"
+                  id="image"
+                  className="w-full border-0 py-3 px-2 text-gray-700 rounded bg-slate-50"
+                  accept="image/*"
+                  {...register("image", { required: true })}
+                  onChange={onChangePicture}
+                />
+                {errors.image && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.image.message}
+                  </p>
+                )}
+              </span>
+              <div className="grid place-items-center grow-0 rounded bg-slate-50">
+                {picture && (
+                  <Image
+                    className="h-12 grow-0"
+                    src={picture && picture}
+                    alt="preview"
+                    width={100}
+                    height={40}
+                  />
+                )}
+              </div>
+            </div>
             <span>
               <input
                 type="text"
@@ -287,7 +373,7 @@ const ModalForm = () => {
                 </p>
               )}
             </span>
-            <span>
+            <span className="flex-1">
               <textarea
                 id="description"
                 placeholder="Product Description"
@@ -300,12 +386,30 @@ const ModalForm = () => {
                 </p>
               )}
             </span>
-            <button
-              type="submit"
-              className="mt-12 w-full rounded bg-blue-500 py-3 font-semibold text-white"
-            >
-              Add Product
-            </button>
+            <footer className=" w-full py-3 grid grid-cols-2 items-center gap-3 ">
+              <button
+                type="submit"
+                className=" rounded  bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 py-3 font-semibold text-white"
+                disabled={postLoading}
+              >
+                {/* Todo: refactor this spaghetti */}
+                {isEditable === true && patchLoading === true
+                  ? "Saving"
+                  : isEditable === true && patchLoading === false
+                  ? "Save Product"
+                  : null || (postLoading === true && isEditable === false)
+                  ? "Adding Product"
+                  : postLoading === false && isEditable === false
+                  ? "Add Product"
+                  : null}
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-3 rounded"
+                onClick={CloseModal}
+              >
+                Close
+              </button>
+            </footer>
           </form>
         </article>
         {/* <footer className=" w-full bg-gray-100 py-3 flex items-center gap-3 justify-center">
@@ -330,7 +434,7 @@ const ModalForm = () => {
 export default ModalForm;
 
 const categories = [
-  { id: 1, name: "Phones" },
-  { id: 2, name: "Laptops" },
+  { id: 12, name: "Phones" },
+  { id: 13, name: "Laptops" },
   { id: 3, name: "Cooking" },
 ];

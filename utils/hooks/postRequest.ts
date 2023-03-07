@@ -1,6 +1,7 @@
 import { Product, User } from "@/type";
 import axios from "axios";
 import { useMutation } from "react-query";
+import { toast } from "react-toastify";
 
 type MutationResult<T> = {
   data: T | undefined;
@@ -9,13 +10,25 @@ type MutationResult<T> = {
   mutate: (data: T) => void;
 };
 
-const useCustomPostMutation = <T extends Product | User>(
-  url: string
+const useCustomPostMutation = <T extends Product | User | any>(
+  url: string,
+  onSuccess?: (data: T) => void
 ): MutationResult<T> => {
   const { data, isLoading, error, mutate } = useMutation<T, unknown, T>(
     async (data) => {
-      const response = await axios.post(url, data);
+      const response = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
+    },
+    {
+      onSuccess: (data) => {
+        toast.info(`Product added Successfully`, {
+          position: "bottom-left",
+        });
+      },
     }
   );
 
@@ -23,7 +36,7 @@ const useCustomPostMutation = <T extends Product | User>(
     data,
     isLoading,
     error,
-    mutate, // expose the mutate method to trigger the post request with data
+    mutate,
   };
 };
 

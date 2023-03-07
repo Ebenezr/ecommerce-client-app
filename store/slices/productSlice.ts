@@ -12,7 +12,7 @@ const useProdStore: StateCreator<ProductState> = (set, get) => ({
     rating: 5,
     image_url: "",
     size: "",
-    categoryId: 1,
+    productCategoryId: 1,
     discount: 0,
     sponsored: true,
     color: "",
@@ -21,6 +21,24 @@ const useProdStore: StateCreator<ProductState> = (set, get) => ({
   setCurrentProduct: (params: any) => {
     set((state) => ({
       currentProduct: params,
+    }));
+  },
+  resetCurrentProduct: () => {
+    set((state) => ({
+      currentProduct: {
+        id: 0,
+        name: "",
+        description: "",
+        price: 0,
+        rating: 0,
+        image_url: "",
+        size: "",
+        productCategoryId: 0,
+        discount: 0,
+        sponsored: false,
+        color: "",
+        supplier: "",
+      },
     }));
   },
 });
