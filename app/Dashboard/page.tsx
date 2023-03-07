@@ -241,11 +241,11 @@ const Dashboard = () => {
                       <div className=" relative bg-white w-full row-end-3 row-start-1 ">
                         {item?.image_url && (
                           <Image
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                             src={item?.image_url}
                             alt={item?.name}
-                            width={40}
-                            height={40}
+                            width={100}
+                            height={100}
                             // placeholder="blur"
                           />
                         )}

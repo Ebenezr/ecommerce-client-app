@@ -11,6 +11,7 @@ import useCustomPostMutation from "@/utils/hooks/postRequest";
 import { Product } from "@/type";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { useQueryClient } from "react-query";
 
 const dropIn = {
   hidden: {
@@ -34,6 +35,7 @@ const dropIn = {
 };
 
 const ModalForm = () => {
+  const queryClient = useQueryClient();
   const [categoryId, setCategoryId] = useState<number>(1);
   const [picture, setPicture] = useState<null | any>(null);
   const isModalOpen = useGetFromStore(useStore, (state) => state.isModalOpen);
@@ -405,7 +407,12 @@ const ModalForm = () => {
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-3 rounded"
-                onClick={CloseModal}
+                onClick={() => {
+                  CloseModal();
+                  queryClient.invalidateQueries([
+                    "http://localhost:5000/api/products",
+                  ]);
+                }}
               >
                 Close
               </button>
