@@ -50,14 +50,14 @@ const ModalForm = () => {
     error: patchError,
     mutate: patch,
   } = useCustomPatchMutation<any>(
-    `http://localhost:5000/api/product/${currentProduct?.id}`
+    `https://esoko-server.onrender.com/api/product/${currentProduct?.id}`
   );
   const {
     data: postData,
     isLoading: postLoading,
     error: postError,
     mutate: post,
-  } = useCustomPostMutation(`http://localhost:5000/api/products`);
+  } = useCustomPostMutation(`https://esoko-server.onrender.com/api/products`);
 
   const [CloseModal, OpenModal] = useStore((state) => [
     state.CloseModal,
@@ -410,7 +410,7 @@ const ModalForm = () => {
                 onClick={() => {
                   CloseModal();
                   queryClient.invalidateQueries([
-                    "http://localhost:5000/api/products",
+                    "https://esoko-server.onrender.com/api/products",
                   ]);
                 }}
               >

@@ -41,24 +41,28 @@ const Dashboard = () => {
     data: productsList,
     error,
     fetchResults,
-  } = useCustomQuery<Product[]>("http://localhost:5000/api/products");
+  } = useCustomQuery<Product[]>(
+    "https://esoko-server.onrender.com/api/products"
+  );
 
   const { data: categories } = useCustomQuery<productCategory[]>(
-    "http://localhost:5000/api/categories"
+    "https://esoko-server.onrender.com/api/categories"
   );
 
   const {
     isLoading: destroyLoading,
     error: destroyError,
     mutate: destroy,
-  } = useCustomDestroyMutation("http://localhost:5000/api/product");
+  } = useCustomDestroyMutation("https://esoko-server.onrender.com/api/product");
 
   useEffect(() => {
     setProducts(productsList);
   }, [productsList]);
 
   useEffect(() => {
-    queryClient.invalidateQueries(["http://localhost:5000/api/products"]);
+    queryClient.invalidateQueries([
+      "https://esoko-server.onrender.com/api/products",
+    ]);
   }, [isModalOpen]);
 
   // calculate stock
