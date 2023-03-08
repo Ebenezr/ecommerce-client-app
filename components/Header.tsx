@@ -11,7 +11,7 @@ const Header = () => {
             name="search"
             id="search"
             placeholder="Search"
-            className="bg-gray-300 rounded-full border-0"
+            className="bg-white rounded-full border-0"
           />
         </span>
       </div>
