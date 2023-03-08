@@ -49,6 +49,10 @@ const Dashboard = () => {
     "https://esoko-server.onrender.com/api/categories"
   );
 
+  const { data: phoneCategories } = useCustomQuery<any[]>(
+    "https://esoko-server.onrender.com/api/category/16"
+  );
+
   const {
     isLoading: destroyLoading,
     error: destroyError,
@@ -221,7 +225,12 @@ const Dashboard = () => {
             <button className="bg-blue-100 text-blue-500  text-xs font-semibold whitespace-nowrap rounded-full px-4 py-2 hover:bg-blue-500 hover:text-white group">
               Phones
             </button>
-            <button className="bg-blue-100 text-blue-500  text-xs font-semibold whitespace-nowrap rounded-full px-4 py-2 hover:bg-blue-500 hover:text-white group">
+            <button
+              className="bg-blue-100 text-blue-500  text-xs font-semibold whitespace-nowrap rounded-full px-4 py-2 hover:bg-blue-500 hover:text-white group"
+              onClick={() => {
+                phoneCategories && setProducts(phoneCategories);
+              }}
+            >
               Vegetable Oil
             </button>
           </div>

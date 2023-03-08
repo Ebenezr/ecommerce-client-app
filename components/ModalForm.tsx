@@ -441,7 +441,18 @@ const ModalForm = () => {
 export default ModalForm;
 
 const categories = [
-  { id: 12, name: "Phones" },
+  { id: 15, name: "Phones" },
   { id: 13, name: "Laptops" },
   { id: 3, name: "Cooking" },
+  {
+    id: 11,
+    name: "Baking Powder",
+  },
+  { id: 12, name: "Noodles" },
+  { id: 14, name: "Vegetable oil" },
+  {
+    id: 16,
+    name: "Margarine",
+  },
+  { id: 19, name: "Cooking fat" },
 ];
